@@ -55,6 +55,7 @@ public class LoginScene extends AbstractScene {
     public boolean isLoginStarted;
     private List<GetAvailabilityAuthRequestEvent.AuthAvailability> auth;
     private final AuthService authService = new AuthService(application);
+    private VBox authList;
     private ToggleGroup authToggleGroup;
     private GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability;
     private final AuthFlow authFlow = new AuthFlow();
@@ -70,6 +71,7 @@ public class LoginScene extends AbstractScene {
 
     @Override
     public void doInit() {
+        authList = LookupHelper.<VBox>lookup(layout, "#authList");
         authToggleGroup = new ToggleGroup();
         authMethods.forEach((k, v) -> v.prepare());
         {
@@ -77,6 +79,7 @@ public class LoginScene extends AbstractScene {
             GetAvailabilityAuthRequest getAvailabilityAuthRequest = new GetAvailabilityAuthRequest();
             processRequest(application.getTranslation("runtime.overlay.processing.text.authAvailability"), getAvailabilityAuthRequest, (auth) -> contextHelper.runInFxThread(() -> {
                 this.auth = auth.list;
+                authList.setVisible(auth.list.size() != 1);
                 for (GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability : auth.list) {
                     if(!authAvailability.visible) {
                         continue;
@@ -93,10 +96,9 @@ public class LoginScene extends AbstractScene {
                     changeAuthAvailability(auth.list.get(0));
                 }
                 hideOverlay(0, (event) -> {
-                    if(application.isDebugMode()) { 
-		        postInit();
+                    if(application.isDebugMode()) {
+                        postInit();
                     }
-		    contextHelper.runInFxThread(this::loginWithGui);
 		});
             }), null);
             if (!application.isDebugMode()) {
@@ -140,6 +142,7 @@ public class LoginScene extends AbstractScene {
 	
     public void changeAuthAvailability(GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability) {
         this.authAvailability = authAvailability;
+        this.application.stateService.setAuthAvailability(authAvailability);
         authFlow.init(authAvailability);
         LogHelper.info("Selected auth: %s", authAvailability.name);
     }
