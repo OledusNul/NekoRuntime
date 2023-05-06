@@ -53,7 +53,6 @@ import java.util.function.Consumer;
 public class LoginScene extends AbstractScene {
     public Map<Class<? extends GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails>, AbstractAuthMethod<? extends GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails>> authMethods = new HashMap<>(8);
     public boolean isLoginStarted;
-    public boolean needUpdate = false;
     private List<GetAvailabilityAuthRequestEvent.AuthAvailability> auth;
     private final AuthService authService = new AuthService(application);
     private ToggleGroup authToggleGroup;
@@ -98,7 +97,6 @@ public class LoginScene extends AbstractScene {
                         postInit();
                     }
 		});
-                contextHelper.runInFxThread(this::loginWithGui);
             }), null);
             if (!application.isDebugMode()) {
                 processRequest(application.getTranslation("runtime.overlay.processing.text.launcher"), launcherRequest, (result) -> {
@@ -107,13 +105,11 @@ public class LoginScene extends AbstractScene {
                     }
                     if (result.needUpdate) {
                         try {
-                            needUpdate = true;
                             LogHelper.debug("Start update processing");
                             disable();
                             StdJavaRuntimeProvider.updatePath = LauncherUpdater.prepareUpdate(new URL(result.url));
                             LogHelper.debug("Exit with Platform.exit");
                             Platform.exit();
-                            needUpdate = false;
                             return;
                         } catch (Throwable e) {
                             contextHelper.runInFxThread(() -> {
@@ -129,7 +125,7 @@ public class LoginScene extends AbstractScene {
                         }
                     }
                     LogHelper.dev("Launcher update processed");
-                    contextHelper.runCallback(this::loginWithGui);
+                    postInit();
                 }, (event) -> LauncherEngine.exitLauncher(0));
             }
         }
@@ -159,18 +155,37 @@ public class LoginScene extends AbstractScene {
             changeAuthAvailability(authAvailability);
         });
         LogHelper.info("Added %s: %s", authAvailability.name, authAvailability.displayName);
+        authList.getChildren().add(radio);
     }
 
     private volatile boolean processingEnabled = false;
 
     public <T extends WebSocketEvent> void processing(Request<T> request, String text, Consumer<T> onSuccess, Consumer<String> onError) {
         if (!processingEnabled) {
-            contextHelper.runInFxThread(this::disable);
+            contextHelper.runInFxThread(() -> {
+                disable();
+                layout.getChildren().remove(authButton.getLayout());
+                root.getChildren().add(authButton.getLayout());
+                authButton.getLayout().setLayoutX(authAbsPosition.x);
+                authButton.getLayout().setLayoutY(authAbsPosition.y);
+            });
+            authButton.disable();
             processingEnabled = true;
         }
+        contextHelper.runInFxThread(() -> {
+            authButton.setText(text);
+        });
         Runnable processingOff = () -> {
             if (!processingEnabled) return;
-            contextHelper.runInFxThread(this::enable);
+            contextHelper.runInFxThread(() -> {
+                enable();
+                root.getChildren().remove(authButton.getLayout());
+                layout.getChildren().add(authButton.getLayout());
+                authButton.getLayout().setLayoutX(authLayoutX);
+                authButton.getLayout().setLayoutY(authLayoutY);
+                authButton.setText(oldText);
+            });
+            authButton.enable();
             processingEnabled = false;
         };
         try {
