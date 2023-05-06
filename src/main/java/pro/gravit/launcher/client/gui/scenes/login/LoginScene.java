@@ -279,20 +279,17 @@ public class LoginScene extends AbstractScene {
             return false;
         return true;
     }
-
     private void onSuccessLogin(SuccessAuth successAuth) {
         AuthRequestEvent result = successAuth.requestEvent;
         application.stateService.setAuthResult(authAvailability.name, result);
-        boolean savePassword = savePasswordCheckBox.isSelected();
-        if (savePassword) {
-            application.runtimeSettings.login = successAuth.recentLogin;
-            if (result.oauth == null) {
-                if(successAuth.recentPassword != null && checkSavePasswordAvailable(successAuth.recentPassword)) {
-                    application.runtimeSettings.password = successAuth.recentPassword;
-                } else {
-                    LogHelper.warning("2FA/MFA Password not saved");
-                }
+        application.runtimeSettings.login = successAuth.recentLogin;
+        if (result.oauth == null) {
+            if(successAuth.recentPassword != null && checkSavePasswordAvailable(successAuth.recentPassword)) {
+                application.runtimeSettings.password = successAuth.recentPassword;
             } else {
+                LogHelper.warning("2FA/MFA Password not saved");
+            }
+        } else {
                 application.runtimeSettings.oauthAccessToken = result.oauth.accessToken;
                 application.runtimeSettings.oauthRefreshToken = result.oauth.refreshToken;
                 application.runtimeSettings.oauthExpire = Request.getTokenExpiredTime();
