@@ -1,18 +1,19 @@
 package pro.gravit.launcher.client.gui.impl;
 
 import pro.gravit.launcher.client.gui.JavaFXApplication;
-import pro.gravit.launcher.client.gui.scenes.login.LoginScene;
-import pro.gravit.launcher.events.RequestEvent;
 import pro.gravit.launcher.client.gui.scenes.AbstractScene;
-import pro.gravit.launcher.events.request.AuthRequestEvent;
-import pro.gravit.launcher.request.RequestService;
+import pro.gravit.launcher.client.gui.scenes.login.LoginScene;
 import pro.gravit.launcher.client.gui.scenes.options.OptionsScene;
 import pro.gravit.launcher.client.gui.scenes.serverinfo.ServerInfoScene;
 import pro.gravit.launcher.client.gui.scenes.servermenu.ServerMenuScene;
 import pro.gravit.launcher.client.gui.scenes.settings.SettingsScene;
+import pro.gravit.launcher.events.RequestEvent;
+import pro.gravit.launcher.events.request.AuthRequestEvent;
 import pro.gravit.launcher.events.request.ProfilesRequestEvent;
 import pro.gravit.launcher.profiles.ClientProfile;
+import pro.gravit.launcher.request.RequestService;
 import pro.gravit.launcher.request.WebSocketEvent;
+import pro.gravit.launcher.request.websockets.ClientWebSocketService;
 import pro.gravit.utils.helper.LogHelper;
 
 import java.util.UUID;
