@@ -205,10 +205,10 @@ public abstract class AbstractScene extends AbstractVisualComponent {
     }
 
     private void sceneBaseInit() {
-        LookupHelper.<ButtonBase>lookupIfPossible(layout, "#discord").ifPresent((b) -> b.setOnAction((e) -> application.openURL("")));
-        LookupHelper.<ButtonBase>lookupIfPossible(layout, "#site").ifPresent((b) -> b.setOnAction((e) -> application.openURL("")));
-        LookupHelper.<ButtonBase>lookupIfPossible(layout, "#vk").ifPresent((b) -> b.setOnAction((e) -> application.openURL("")));
-        LookupHelper.<ButtonBase>lookupIfPossible(layout, "#cabinet").ifPresent((b) -> b.setOnAction((e) -> application.openURL("")));
+        LookupHelper.<ButtonBase>lookupIfPossible(layout, "#discord").ifPresent((b) -> b.setOnAction((e) -> application.openURL("https://discord.gg/PCmyMndd3z")));
+        LookupHelper.<ButtonBase>lookupIfPossible(layout, "#site").ifPresent((b) -> b.setOnAction((e) -> application.openURL("https://darkmine.ru/")));
+        LookupHelper.<ButtonBase>lookupIfPossible(layout, "#vk").ifPresent((b) -> b.setOnAction((e) -> application.openURL("https://vk.com/darkmine")));
+        LookupHelper.<ButtonBase>lookupIfPossible(layout, "#cabinet").ifPresent((b) -> b.setOnAction((e) -> application.openURL("https://wiki.darkmine.ru/")));
         if (header == null) {
             LogHelper.warning("Scene %s header button(#close, #hide) deprecated", getName());
             LookupHelper.<ButtonBase>lookupIfPossible(layout, "#close").ifPresent((b) -> b.setOnAction((e) -> currentStage.close()));
