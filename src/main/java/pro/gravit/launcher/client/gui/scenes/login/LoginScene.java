@@ -156,6 +156,7 @@ public class LoginScene extends AbstractScene {
             changeAuthAvailability(authAvailability);
         });
         LogHelper.info("Added %s: %s", authAvailability.name, authAvailability.displayName);
+	authList.getChildren().add(radio);
     }
 
     private volatile boolean processingEnabled = false;
