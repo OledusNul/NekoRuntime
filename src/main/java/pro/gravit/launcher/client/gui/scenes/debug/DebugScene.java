@@ -1,8 +1,8 @@
 package pro.gravit.launcher.client.gui.scenes.debug;
 
-import animatefx.animation.FadeIn;
-import animatefx.animation.SlideInLeft;
-import animatefx.animation.SlideInUp;
+import pro.gravit.launcher.client.animatefx.animation.FadeIn;
+import pro.gravit.launcher.client.animatefx.animation.SlideInLeft;
+import pro.gravit.launcher.client.animatefx.animation.SlideInUp;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;

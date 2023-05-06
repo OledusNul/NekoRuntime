@@ -1,6 +1,6 @@
 package pro.gravit.launcher.client.gui.scenes.serverinfo;
 
-import animatefx.animation.*;
+import pro.gravit.launcher.client.animatefx.animation.*;
 import javafx.animation.Interpolator;
 import javafx.animation.RotateTransition;
 import javafx.scene.control.*;

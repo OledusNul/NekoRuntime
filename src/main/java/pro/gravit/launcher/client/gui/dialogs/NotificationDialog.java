@@ -1,7 +1,7 @@
 package pro.gravit.launcher.client.gui.dialogs;
 
-import animatefx.animation.SlideOutDown;
-import animatefx.animation.SlideOutUp;
+import pro.gravit.launcher.client.animatefx.animation.SlideOutDown;
+import pro.gravit.launcher.client.animatefx.animation.SlideOutUp;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;

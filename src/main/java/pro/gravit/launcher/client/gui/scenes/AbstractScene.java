@@ -1,9 +1,9 @@
 package pro.gravit.launcher.client.gui.scenes;
 
-import animatefx.animation.FadeIn;
-import animatefx.animation.SlideInDown;
-import animatefx.animation.SlideInUp;
-import animatefx.animation.SlideOutDown;
+import pro.gravit.launcher.client.animatefx.animation.FadeIn;
+import pro.gravit.launcher.client.animatefx.animation.SlideInDown;
+import pro.gravit.launcher.client.animatefx.animation.SlideInUp;
+import pro.gravit.launcher.client.animatefx.animation.SlideOutDown;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;

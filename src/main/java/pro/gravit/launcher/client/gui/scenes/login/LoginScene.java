@@ -1,6 +1,6 @@
 package pro.gravit.launcher.client.gui.scenes.login;
 
-import animatefx.animation.FadeIn;
+import pro.gravit.launcher.client.animatefx.animation.FadeIn;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
