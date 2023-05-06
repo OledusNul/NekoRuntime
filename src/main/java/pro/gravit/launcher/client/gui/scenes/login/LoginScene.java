@@ -44,6 +44,12 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
+import java.io.IOException;
+import java.net.URL;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
+
 public class LoginScene extends AbstractScene {
     public Map<Class<? extends GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails>, AbstractAuthMethod<? extends GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails>> authMethods = new HashMap<>(8);
     public boolean isLoginStarted;
@@ -91,7 +97,7 @@ public class LoginScene extends AbstractScene {
                     if(application.isDebugMode()) {
                         postInit();
                     }
-                });
+                contextHelper.runInFxThread(this::loginWithGui);
             }), null);
             if (!application.isDebugMode()) {
                 processRequest(application.getTranslation("runtime.overlay.processing.text.launcher"), launcherRequest, (result) -> {
@@ -100,11 +106,13 @@ public class LoginScene extends AbstractScene {
                     }
                     if (result.needUpdate) {
                         try {
+                            needUpdate = true;
                             LogHelper.debug("Start update processing");
                             disable();
                             StdJavaRuntimeProvider.updatePath = LauncherUpdater.prepareUpdate(new URL(result.url));
                             LogHelper.debug("Exit with Platform.exit");
                             Platform.exit();
+                            needUpdate = false;
                             return;
                         } catch (Throwable e) {
                             contextHelper.runInFxThread(() -> {
@@ -120,7 +128,7 @@ public class LoginScene extends AbstractScene {
                         }
                     }
                     LogHelper.dev("Launcher update processed");
-                    postInit();
+                    contextHelper.runCallback(this::loginWithGui);
                 }, (event) -> LauncherEngine.exitLauncher(0));
             }
         }
@@ -131,7 +139,7 @@ public class LoginScene extends AbstractScene {
             contextHelper.runInFxThread(this::loginWithGui);
         }
     }
-   
+	
     public void changeAuthAvailability(GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability) {
         this.authAvailability = authAvailability;
         authFlow.init(authAvailability);
