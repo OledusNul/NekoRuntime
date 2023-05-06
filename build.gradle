@@ -57,6 +57,7 @@ repositories {
 }
 
 dependencies {
+    implementation files('lib\AnimateFX-1.2.3.jar')
     implementation files('lib\AnimateFX-1.2.3-sources.jar')
     implementation "pro.gravit.launcher:launcher-core:5.4.0"
     implementation "pro.gravit.launcher:launcher-ws-api:5.4.0"
