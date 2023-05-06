@@ -23,20 +23,6 @@ public class LoginAuthButtonComponent {
         this.button.setOnAction(eventHandler);
     }
     
-    public void setActive(boolean value) {
-        authUnActive.setVisible(!value);
-        authActive.setVisible(value);
-    }
-
-    public void disable() {
-        isDisabled = true;
-        this.button.setDisable(true);
-    }
-
-    public void enable() {
-        isDisabled = false;
-        this.button.setDisable(false);
-    }  
     public Pane getLayout() {
         return layout;
     }
