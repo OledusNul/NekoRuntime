@@ -9,6 +9,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import pro.gravit.launcher.LauncherEngine;
+import pro.gravit.launcher.LauncherEngine;
 import pro.gravit.launcher.client.StdJavaRuntimeProvider;
 import pro.gravit.launcher.client.events.ClientExitPhase;
 import pro.gravit.launcher.client.gui.JavaFXApplication;
@@ -86,7 +87,11 @@ public class LoginScene extends AbstractScene {
                 if (this.authAvailability == null && auth.list.size() > 0) {
                     changeAuthAvailability(auth.list.get(0));
                 }
-                contextHelper.runInFxThread(this::loginWithGui);
+                hideOverlay(0, (event) -> {
+                    if(application.isDebugMode()) {
+                        postInit();
+                    }
+                });
             }), null);
             if (!application.isDebugMode()) {
                 processRequest(application.getTranslation("runtime.overlay.processing.text.launcher"), launcherRequest, (result) -> {
@@ -95,13 +100,11 @@ public class LoginScene extends AbstractScene {
                     }
                     if (result.needUpdate) {
                         try {
-                            needUpdate = true;
                             LogHelper.debug("Start update processing");
                             disable();
                             StdJavaRuntimeProvider.updatePath = LauncherUpdater.prepareUpdate(new URL(result.url));
                             LogHelper.debug("Exit with Platform.exit");
                             Platform.exit();
-                            needUpdate = false;
                             return;
                         } catch (Throwable e) {
                             contextHelper.runInFxThread(() -> {
@@ -117,11 +120,10 @@ public class LoginScene extends AbstractScene {
                         }
                     }
                     LogHelper.dev("Launcher update processed");
-                    contextHelper.runCallback(this::loginWithGui);
+                    postInit();
                 }, (event) -> LauncherEngine.exitLauncher(0));
             }
         }
-        hideOverlay(0, (event) -> {});
     }
 
     public void changeAuthAvailability(GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability) {
