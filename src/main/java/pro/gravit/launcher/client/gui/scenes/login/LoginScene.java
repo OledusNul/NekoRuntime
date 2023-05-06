@@ -283,19 +283,22 @@ public class LoginScene extends AbstractScene {
     private void onSuccessLogin(SuccessAuth successAuth) {
         AuthRequestEvent result = successAuth.requestEvent;
         application.stateService.setAuthResult(authAvailability.name, result);
-        application.runtimeSettings.login = successAuth.recentLogin;
-        if (result.oauth == null) {
-            if(successAuth.recentPassword != null && checkSavePasswordAvailable(successAuth.recentPassword)) {
-                application.runtimeSettings.password = successAuth.recentPassword;
+        boolean savePassword = savePasswordCheckBox.isSelected();
+        if (savePassword) {
+            application.runtimeSettings.login = successAuth.recentLogin;
+            if (result.oauth == null) {
+                if(successAuth.recentPassword != null && checkSavePasswordAvailable(successAuth.recentPassword)) {
+                    application.runtimeSettings.password = successAuth.recentPassword;
+                } else {
+                    LogHelper.warning("2FA/MFA Password not saved");
+                }
             } else {
-                LogHelper.warning("2FA/MFA Password not saved");
+                application.runtimeSettings.oauthAccessToken = result.oauth.accessToken;
+                application.runtimeSettings.oauthRefreshToken = result.oauth.refreshToken;
+                application.runtimeSettings.oauthExpire = Request.getTokenExpiredTime();
             }
-        } else {
-            application.runtimeSettings.oauthAccessToken = result.oauth.accessToken;
-            application.runtimeSettings.oauthRefreshToken = result.oauth.refreshToken;
-            application.runtimeSettings.oauthExpire = Request.getTokenExpiredTime();
+            application.runtimeSettings.lastAuth = authAvailability;
         }
-        application.runtimeSettings.lastAuth = authAvailability;
         if (result.playerProfile != null && result.playerProfile.assets != null && result.playerProfile.assets.get("SKIN") != null) {
             try {
                 application.skinManager.addSkin(result.playerProfile.username, new URL(result.playerProfile.assets.get("SKIN").url));
@@ -323,7 +326,6 @@ public class LoginScene extends AbstractScene {
                         }
                 );
                 player.get().setVisible(true);
-                new FadeIn(player.get()).play();
                 disable();
                 fade(player.get(), 2000.0, 0.0, 1.0, (e) -> {
                             enable();
