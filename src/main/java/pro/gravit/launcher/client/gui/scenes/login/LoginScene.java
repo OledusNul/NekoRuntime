@@ -126,6 +126,12 @@ public class LoginScene extends AbstractScene {
         }
     }
 
+    private void postInit() {
+        if(application.guiModuleConfig.autoAuth || application.runtimeSettings.autoAuth) {
+            contextHelper.runInFxThread(this::loginWithGui);
+        }
+    }
+   
     public void changeAuthAvailability(GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability) {
         this.authAvailability = authAvailability;
         authFlow.init(authAvailability);
