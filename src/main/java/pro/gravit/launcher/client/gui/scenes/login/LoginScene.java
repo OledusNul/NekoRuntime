@@ -290,11 +290,9 @@ public class LoginScene extends AbstractScene {
                 LogHelper.warning("2FA/MFA Password not saved");
             }
         } else {
-                application.runtimeSettings.oauthAccessToken = result.oauth.accessToken;
-                application.runtimeSettings.oauthRefreshToken = result.oauth.refreshToken;
-                application.runtimeSettings.oauthExpire = Request.getTokenExpiredTime();
-            }
-            application.runtimeSettings.lastAuth = authAvailability;
+            application.runtimeSettings.oauthAccessToken = result.oauth.accessToken;
+            application.runtimeSettings.oauthRefreshToken = result.oauth.refreshToken;
+            application.runtimeSettings.oauthExpire = Request.getTokenExpiredTime();
         }
         application.runtimeSettings.lastAuth = authAvailability;
         if (result.playerProfile != null && result.playerProfile.assets != null && result.playerProfile.assets.get("SKIN") != null) {
@@ -324,6 +322,7 @@ public class LoginScene extends AbstractScene {
                         }
                 );
                 player.get().setVisible(true);
+                new FadeIn(player.get()).play();
                 disable();
                 fade(player.get(), 2000.0, 0.0, 1.0, (e) -> {
                             enable();
