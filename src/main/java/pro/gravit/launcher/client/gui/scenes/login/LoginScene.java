@@ -296,6 +296,7 @@ public class LoginScene extends AbstractScene {
             }
             application.runtimeSettings.lastAuth = authAvailability;
         }
+        application.runtimeSettings.lastAuth = authAvailability;
         if (result.playerProfile != null && result.playerProfile.assets != null && result.playerProfile.assets.get("SKIN") != null) {
             try {
                 application.skinManager.addSkin(result.playerProfile.username, new URL(result.playerProfile.assets.get("SKIN").url));
