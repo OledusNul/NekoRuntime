@@ -77,8 +77,9 @@ public class LoginScene extends AbstractScene {
             GetAvailabilityAuthRequest getAvailabilityAuthRequest = new GetAvailabilityAuthRequest();
             processRequest(application.getTranslation("runtime.overlay.processing.text.authAvailability"), getAvailabilityAuthRequest, (auth) -> contextHelper.runInFxThread(() -> {
                 this.auth = auth.list;
+                authList.setVisible(auth.list.size() != 1);
                 for (GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability : auth.list) {
-					if(!authAvailability.visible) {
+                    if(!authAvailability.visible) {
                         continue;
                     }
                     if (application.runtimeSettings.lastAuth == null) {
@@ -89,7 +90,7 @@ public class LoginScene extends AbstractScene {
                         changeAuthAvailability(authAvailability);
                     addAuthAvailability(authAvailability);
                 }
-                if (this.authAvailability == null && auth.list.size() > 0) {
+                if(this.authAvailability == null && auth.list.size() > 0) {
                     changeAuthAvailability(auth.list.get(0));
                 }
                 hideOverlay(0, (event) -> {
