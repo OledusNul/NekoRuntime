@@ -164,28 +164,14 @@ public class LoginScene extends AbstractScene {
         if (!processingEnabled) {
             contextHelper.runInFxThread(() -> {
                 disable();
-                layout.getChildren().remove(authButton.getLayout());
-                root.getChildren().add(authButton.getLayout());
-                authButton.getLayout().setLayoutX(authAbsPosition.x);
-                authButton.getLayout().setLayoutY(authAbsPosition.y);
             });
-            authButton.disable();
             processingEnabled = true;
         }
-        contextHelper.runInFxThread(() -> {
-            authButton.setText(text);
-        });
         Runnable processingOff = () -> {
             if (!processingEnabled) return;
             contextHelper.runInFxThread(() -> {
                 enable();
-                root.getChildren().remove(authButton.getLayout());
-                layout.getChildren().add(authButton.getLayout());
-                authButton.getLayout().setLayoutX(authLayoutX);
-                authButton.getLayout().setLayoutY(authLayoutY);
-                authButton.setText(oldText);
-            });
-            authButton.enable();
+	    });
             processingEnabled = false;
         };
         try {
