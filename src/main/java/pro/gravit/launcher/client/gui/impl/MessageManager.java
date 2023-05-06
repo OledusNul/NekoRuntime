@@ -1,8 +1,8 @@
 package pro.gravit.launcher.client.gui.impl;
 
-import pro.gravit.launcher.client.animatefx.animation.FadeIn;
-import pro.gravit.launcher.client.animatefx.animation.SlideInDown;
-import pro.gravit.launcher.client.animatefx.animation.SlideInRight;
+import animatefx.animation.FadeIn;
+import animatefx.animation.SlideInDown;
+import animatefx.animation.SlideInRight;
 import javafx.scene.layout.Pane;
 import javafx.util.Duration;
 import pro.gravit.launcher.client.gui.JavaFXApplication;
