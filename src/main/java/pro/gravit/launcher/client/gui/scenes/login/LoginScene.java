@@ -296,6 +296,7 @@ public class LoginScene extends AbstractScene {
             application.runtimeSettings.oauthExpire = Request.getTokenExpiredTime();
         }
         application.runtimeSettings.lastAuth = authAvailability;
+	}
         if (result.playerProfile != null && result.playerProfile.assets != null && result.playerProfile.assets.get("SKIN") != null) {
             try {
                 application.skinManager.addSkin(result.playerProfile.username, new URL(result.playerProfile.assets.get("SKIN").url));
@@ -481,6 +482,7 @@ public class LoginScene extends AbstractScene {
 
 
         private void login(String login, AuthRequest.AuthPasswordInterface password, GetAvailabilityAuthRequestEvent.AuthAvailability authId, CompletableFuture<SuccessAuth> result) {
+            isLoginStarted = true;
             LogHelper.dev("Auth with %s password ***** authId %s", login, authId);
             AuthRequest authRequest = authService.makeAuthRequest(login, password, authId.name);
             processing(authRequest, application.getTranslation("runtime.overlay.processing.text.auth"), (event) -> {
@@ -491,6 +493,12 @@ public class LoginScene extends AbstractScene {
                     application.runtimeSettings.oauthRefreshToken = null;
                     result.completeExceptionally(new RequestException(error));
                 } else if (error.equals(AuthRequestEvent.TWO_FACTOR_NEED_ERROR_MESSAGE)) {
+                    /*List<Integer> newAuthFlow = new ArrayList<>();
+                    newAuthFlow.add(0);
+                    newAuthFlow.add(1);
+                    AuthRequest.AuthPasswordInterface recentPassword = makeResentPassword(newAuthFlow, password);
+                    authFlow.clear();
+                    authFlow.addAll(newAuthFlow);*/
                     authFlow.clear();
                     authFlow.add(1);
                     contextHelper.runInFxThread(() -> start(result, login, password));
@@ -499,6 +507,7 @@ public class LoginScene extends AbstractScene {
                     for (String s : error.substring(AuthRequestEvent.ONE_FACTOR_NEED_ERROR_MESSAGE_PREFIX.length() + 1).split("\\.")) {
                         newAuthFlow.add(Integer.parseInt(s));
                     }
+                    //AuthRequest.AuthPasswordInterface recentPassword = makeResentPassword(newAuthFlow, password);
                     authFlow.clear();
                     authFlow.addAll(newAuthFlow);
                     contextHelper.runInFxThread(() -> start(result, login, password));
@@ -506,10 +515,24 @@ public class LoginScene extends AbstractScene {
                     authFlow.clear();
                     authFlow.add(0);
                     errorHandle(new RequestException(error));
-                    contextHelper.runInFxThread(LoginScene.this::loginWithGui);
                 }
             });
         }
+
+        /*public AuthRequest.AuthPasswordInterface makeResentPassword(List<Integer> newAuthFlow, AuthRequest.AuthPasswordInterface password) {
+            List<AuthRequest.AuthPasswordInterface> list = authService.getListFromPassword(password);
+            List<AuthRequest.AuthPasswordInterface> result = new ArrayList<>();
+            for(int i=0;i<newAuthFlow.size();++i) {
+                int flowId = newAuthFlow.get(i);
+                if(authFlow.contains(flowId)) {
+                    result.add(list.get(i));
+                    //noinspection RedundantCast
+                    newAuthFlow.remove((int)i);
+                    i--;
+                }
+            }
+            return authService.getPasswordFromList(result);
+        }*/
     }
 
     public static class SuccessAuth {
