@@ -93,8 +93,8 @@ public class LoginScene extends AbstractScene {
                     changeAuthAvailability(auth.list.get(0));
                 }
                 hideOverlay(0, (event) -> {
-                    if(application.isDebugMode()) {
-                        postInit();
+                    if(application.isDebugMode()) { 
+		        postInit();
                     }
 		    contextHelper.runInFxThread(this::loginWithGui);
 		});
@@ -194,14 +194,17 @@ public class LoginScene extends AbstractScene {
     public void errorHandle(Throwable e) {
         super.errorHandle(e);
         if (!processingEnabled) return;
-        contextHelper.runInFxThread(this::enable);
-        processingEnabled = false;
-    }
+            contextHelper.runInFxThread(() -> {
+                enable();
+	    });
+            processingEnabled = false;
+        }
 
     @Override
     public void reset() {
-        contextHelper.runInFxThread(LoginScene.this::loginWithGui);
+
     }
+
 
     @Override
     public String getName() {
@@ -223,6 +226,7 @@ public class LoginScene extends AbstractScene {
                 }, (error) -> {
                     application.runtimeSettings.oauthAccessToken = null;
                     application.runtimeSettings.oauthRefreshToken = null;
+		    contextHelper.runInFxThread(this::loginWithGui);
                 });
                 return true;
             }
@@ -245,6 +249,7 @@ public class LoginScene extends AbstractScene {
             if (error.equals(AuthRequestEvent.OAUTH_TOKEN_INVALID)) {
                 application.runtimeSettings.oauthAccessToken = null;
                 application.runtimeSettings.oauthRefreshToken = null;
+                contextHelper.runInFxThread(this::loginWithGui);
             } else {
                 errorHandle(new RequestException(error));
             }
@@ -257,9 +262,7 @@ public class LoginScene extends AbstractScene {
     }
 
     private void loginWithGui() {
-        if (tryOAuthLogin()) {
-            return;
-        }
+        if (tryOAuthLogin()) return;
         authFlow.start().thenAccept((result) -> {
             contextHelper.runInFxThread(() -> {
                 onSuccessLogin(result);
