@@ -43,18 +43,18 @@ public class InfoDialog extends AbstractDialog {
 
     @Override
     protected void doInit() throws Exception {
-//        textHeader = LookupHelper.lookup(layout, "#headingDialog");
+          textHeader = LookupHelper.lookup(layout, "#headingDialog");
         textDescription = LookupHelper.<Label>lookup(layout, "#dialogDescription");
-//        textHeader.setText(header);
+          textHeader.setText(header);
         textDescription.setText(text);
-//        LookupHelper.<Button>lookup(layout, "#close").setOnAction((e) -> {
-//            try {
-//                close();
-//            } catch (Throwable throwable) {
-//                errorHandle(throwable);
-//            }
-//            onClose.run();
-//        });
+          LookupHelper.<Button>lookup(layout, "#close").setOnAction((e) -> {
+              try {
+                  close();
+              } catch (Throwable throwable) {
+                  errorHandle(throwable);
+              }
+               onClose.run();
+        });
         LookupHelper.<Button>lookup(layout, "#apply").setOnAction((e) -> {
             try {
                 close();
