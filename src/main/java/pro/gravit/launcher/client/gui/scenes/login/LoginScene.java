@@ -91,10 +91,12 @@ public class LoginScene extends AbstractScene {
                 }
                 if(this.authAvailability == null && auth.list.size() > 0) {
                     changeAuthAvailability(auth.list.get(0));
-                    if(application.isDebugMode()) {
-                        postInit();
                 }
-	        contextHelper.runInFxThread(this::loginWithGui);
+                hideOverlay(0, (event) -> {
+                    if(application.isDebugMode()) {
+                        contextHelper.runInFxThread(this::loginWithGui);
+                    }
+                });
             }), null);
             if (!application.isDebugMode()) {
                 processRequest(application.getTranslation("runtime.overlay.processing.text.launcher"), launcherRequest, (result) -> {
@@ -124,7 +126,6 @@ public class LoginScene extends AbstractScene {
                     }
                     LogHelper.dev("Launcher update processed");
                     postInit();
-		    contextHelper.runInFxThread(this::loginWithGui);
                 }, (event) -> LauncherEngine.exitLauncher(0));
             }
         }
