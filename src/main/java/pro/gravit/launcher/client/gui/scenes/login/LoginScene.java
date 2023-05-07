@@ -93,7 +93,7 @@ public class LoginScene extends AbstractScene {
                     changeAuthAvailability(auth.list.get(0));
                 }
                 hideOverlay(0, (event) -> {
-                    if(application.isDebugMode()) {
+                    if (!application.isDebugMode()) {
                         contextHelper.runInFxThread(this::loginWithGui);
                     }
                 });
