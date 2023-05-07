@@ -15,11 +15,20 @@ public class LoginAuthButtonComponent {
     private final Pane authActive;
     private final Button button;
 
-    public LoginAuthButtonComponent(Pane authButton, JavaFXApplication application, EventHandler<ActionEvent> eventHandler) {
+  public LoginAuthButtonComponent(Pane authButton, JavaFXApplication application, EventHandler<ActionEvent> eventHandler) {
         this.application = application;
         this.layout = authButton;
+        this.authUnActive = LookupHelper.lookup(layout, "#authUnactive");
         this.authActive = LookupHelper.lookup(layout, "#authActive");
+        this.authBorder = LookupHelper.lookup(authActive, "#authBorder");
         this.button = LookupHelper.lookup(authActive, "#authButton");
+        this.authsvg = ((Pane)button.getGraphic()).getChildren().get(0);
+        this.button.setOnMouseEntered(e -> {
+            this.authBorder.setVisible(true);
+        });
+        this.button.setOnMouseExited(e -> {
+            this.authBorder.setVisible(false);
+        });
         this.button.setOnAction(eventHandler);
     }
     
