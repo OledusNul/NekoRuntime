@@ -238,8 +238,6 @@ public class LoginScene extends AbstractScene {
             return true;
         }
 	    
-    }
-
     private void loginWithOAuth(AuthOAuthPassword password, GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability) {
         AuthRequest authRequest = authService.makeAuthRequest(null, password, authAvailability.name);
         processing(authRequest, application.getTranslation("runtime.overlay.processing.text.auth"), (result) -> {
