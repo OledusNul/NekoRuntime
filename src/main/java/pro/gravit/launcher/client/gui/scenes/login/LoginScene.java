@@ -97,6 +97,7 @@ public class LoginScene extends AbstractScene {
 			postInit();
                         contextHelper.runInFxThread(this::loginWithGui);
                     }
+	           postInit();
 		});
             }), null);
             if (!application.isDebugMode()) {
