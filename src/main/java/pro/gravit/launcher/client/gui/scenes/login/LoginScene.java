@@ -236,8 +236,10 @@ public class LoginScene extends AbstractScene {
             LogHelper.info("Login with OAuth AccessToken");
             loginWithOAuth(password, authAvailability);
             return true;
-        }
-	    
+         }
+        return true;
+    }
+    
     private void loginWithOAuth(AuthOAuthPassword password, GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability) {
         AuthRequest authRequest = authService.makeAuthRequest(null, password, authAvailability.name);
         processing(authRequest, application.getTranslation("runtime.overlay.processing.text.auth"), (result) -> {
