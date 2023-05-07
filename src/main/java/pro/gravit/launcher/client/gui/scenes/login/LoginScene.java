@@ -96,7 +96,6 @@ public class LoginScene extends AbstractScene {
 			postInit();
                     }
 	          contextHelper.runInFxThread(this::loginWithGui);
-		});
             }), null);
             if (!application.isDebugMode()) {
                 processRequest(application.getTranslation("runtime.overlay.processing.text.launcher"), launcherRequest, (result) -> {
