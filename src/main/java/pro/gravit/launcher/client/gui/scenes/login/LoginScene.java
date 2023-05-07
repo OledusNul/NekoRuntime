@@ -95,11 +95,10 @@ public class LoginScene extends AbstractScene {
 		hideOverlay(0, (event) -> {
                     if(application.isDebugMode()) {
 			postInit();
-                        contextHelper.runInFxThread(this::loginWithGui);
                     }
                     if(application.isDebugMode()) {
-			postInit();
                         contextHelper.runInFxThread(this::loginWithGui);
+	            }
 		});
             }), null);
             if (!application.isDebugMode()) {
