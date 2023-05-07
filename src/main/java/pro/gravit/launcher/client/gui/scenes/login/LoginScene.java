@@ -79,10 +79,12 @@ public class LoginScene extends AbstractScene {
                 this.auth = auth.list;
                 for (GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability : auth.list) {
                     if(!authAvailability.visible) {
+			contextHelper.runInFxThread(this::loginWithGui);
                         continue;
                     }
                     if (application.runtimeSettings.lastAuth == null) {
                         if (authAvailability.name.equals("std") || this.authAvailability == null) {
+			    contextHelper.runInFxThread(this::loginWithGui);
                             changeAuthAvailability(authAvailability);
                         }
                     } else if (authAvailability.name.equals(application.runtimeSettings.lastAuth.name))
@@ -92,9 +94,9 @@ public class LoginScene extends AbstractScene {
                 if(this.authAvailability == null && auth.list.size() > 0) {
                     changeAuthAvailability(auth.list.get(0));
                 }
-                hideOverlay(0, (event) -> {
-                    if (!application.isDebugMode()) {
-                        contextHelper.runInFxThread(this::loginWithGui);
+                 hideOverlay(0, (event) -> {
+                    if(application.isDebugMode()) {
+                        postInit();
                     }
                 });
             }), null);
