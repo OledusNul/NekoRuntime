@@ -237,7 +237,6 @@ public class LoginScene extends AbstractScene {
             loginWithOAuth(password, authAvailability);
             return true;
         }
-        return false;
     }
 
     private void loginWithOAuth(AuthOAuthPassword password, GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability) {
