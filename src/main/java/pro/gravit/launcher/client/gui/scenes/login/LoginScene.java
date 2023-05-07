@@ -90,9 +90,11 @@ public class LoginScene extends AbstractScene {
                     } else if (authAvailability.name.equals(application.runtimeSettings.lastAuth.name))
                         changeAuthAvailability(authAvailability);
                     addAuthAvailability(authAvailability);
+	            contextHelper.runInFxThread(this::loginWithGui);
                 }
                 if(this.authAvailability == null && auth.list.size() > 0) {
                     changeAuthAvailability(auth.list.get(0));
+		    contextHelper.runInFxThread(this::loginWithGui);
                 }
                  hideOverlay(0, (event) -> {
                     if(application.isDebugMode()) {
@@ -127,6 +129,7 @@ public class LoginScene extends AbstractScene {
                         }
                     }
                     LogHelper.dev("Launcher update processed");
+		    contextHelper.runInFxThread(this::loginWithGui);
                     postInit();
                 }, (event) -> LauncherEngine.exitLauncher(0));
             }
