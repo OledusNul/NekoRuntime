@@ -93,12 +93,8 @@ public class LoginScene extends AbstractScene {
                     changeAuthAvailability(auth.list.get(0));
                 }
 		hideOverlay(0, (event) -> {
-                    if(application.isDebugMode()) {
 			postInit();
                     }
-                    if(application.isDebugMode()) {
-                        contextHelper.runInFxThread(this::loginWithGui);
-	            }
 		});
             }), null);
             if (!application.isDebugMode()) {
@@ -129,6 +125,7 @@ public class LoginScene extends AbstractScene {
                     }
                     LogHelper.dev("Launcher update processed");
                     postInit();
+		    contextHelper.runInFxThread(this::loginWithGui);
                 }, (event) -> LauncherEngine.exitLauncher(0));
             }
         }
