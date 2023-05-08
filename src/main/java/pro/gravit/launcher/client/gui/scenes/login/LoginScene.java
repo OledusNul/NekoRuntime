@@ -92,9 +92,7 @@ public class LoginScene extends AbstractScene {
                 if(this.authAvailability == null && auth.list.size() > 0) {
                     changeAuthAvailability(auth.list.get(0));
                 }
-                      if (application.runtimeSettings.password != null && application.runtimeSettings.autoAuth) {
-                        contextHelper.runCallback(this::loginWithGui);
-                    }
+                 contextHelper.runCallback(this::loginWithGui);
             }), null);
             if (!application.isDebugMode()) {
                 processRequest(application.getTranslation("runtime.overlay.processing.text.launcher"), launcherRequest, (result) -> {
