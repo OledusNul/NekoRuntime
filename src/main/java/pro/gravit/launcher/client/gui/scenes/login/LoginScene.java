@@ -92,7 +92,7 @@ public class LoginScene extends AbstractScene {
                 if(this.authAvailability == null && auth.list.size() > 0) {
                     changeAuthAvailability(auth.list.get(0));
                 }
-                 contextHelper.runCallback(this::loginWithGui);
+                 contextHelper.runInFxThread(this::loginWithGui);
             }), null);
             if (!application.isDebugMode()) {
                 processRequest(application.getTranslation("runtime.overlay.processing.text.launcher"), launcherRequest, (result) -> {
