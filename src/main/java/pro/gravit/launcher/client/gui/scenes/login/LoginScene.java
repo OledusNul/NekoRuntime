@@ -98,13 +98,11 @@ public class LoginScene extends AbstractScene {
                     }
                     if (result.needUpdate) {
                         try {
-                            needUpdate = true;
                             LogHelper.debug("Start update processing");
                             disable();
                             StdJavaRuntimeProvider.updatePath = LauncherUpdater.prepareUpdate(new URL(result.url));
                             LogHelper.debug("Exit with Platform.exit");
                             Platform.exit();
-                            needUpdate = false;
                             return;
                         } catch (Throwable e) {
                             contextHelper.runInFxThread(() -> {
