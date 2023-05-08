@@ -78,9 +78,6 @@ public class LoginScene extends AbstractScene {
             processRequest(application.getTranslation("runtime.overlay.processing.text.authAvailability"), getAvailabilityAuthRequest, (auth) -> contextHelper.runInFxThread(() -> {
                 this.auth = auth.list;
                 for (GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability : auth.list) {
-                    if(!authAvailability.visible) {
-                        continue;
-                    }
                     if (application.runtimeSettings.lastAuth == null) {
                         if (authAvailability.name.equals("std") || this.authAvailability == null) {
                             changeAuthAvailability(authAvailability);
@@ -89,10 +86,10 @@ public class LoginScene extends AbstractScene {
                         changeAuthAvailability(authAvailability);
                     addAuthAvailability(authAvailability);
                 }
-                if(this.authAvailability == null && auth.list.size() > 0) {
+                if (this.authAvailability == null && auth.list.size() > 0) {
                     changeAuthAvailability(auth.list.get(0));
                 }
-                 contextHelper.runInFxThread(this::loginWithGui);
+                contextHelper.runInFxThread(this::loginWithGui);
             }), null);
             if (!application.isDebugMode()) {
                 processRequest(application.getTranslation("runtime.overlay.processing.text.launcher"), launcherRequest, (result) -> {
@@ -101,11 +98,13 @@ public class LoginScene extends AbstractScene {
                     }
                     if (result.needUpdate) {
                         try {
+                            needUpdate = true;
                             LogHelper.debug("Start update processing");
                             disable();
                             StdJavaRuntimeProvider.updatePath = LauncherUpdater.prepareUpdate(new URL(result.url));
                             LogHelper.debug("Exit with Platform.exit");
                             Platform.exit();
+                            needUpdate = false;
                             return;
                         } catch (Throwable e) {
                             contextHelper.runInFxThread(() -> {
@@ -121,21 +120,15 @@ public class LoginScene extends AbstractScene {
                         }
                     }
                     LogHelper.dev("Launcher update processed");
-		    contextHelper.runInFxThread(this::loginWithGui);
+                    contextHelper.runCallback(this::loginWithGui);
                 }, (event) -> LauncherEngine.exitLauncher(0));
             }
         }
+        hideOverlay(0, (event) -> {});
     }
 
-    private void postInit() {
-        if(application.guiModuleConfig.autoAuth || application.runtimeSettings.autoAuth) {
-            contextHelper.runInFxThread(this::loginWithGui);
-        }
-    }
-	
     public void changeAuthAvailability(GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability) {
         this.authAvailability = authAvailability;
-        this.application.stateService.setAuthAvailability(authAvailability);
         authFlow.init(authAvailability);
         LogHelper.info("Selected auth: %s", authAvailability.name);
     }
@@ -158,16 +151,12 @@ public class LoginScene extends AbstractScene {
 
     public <T extends WebSocketEvent> void processing(Request<T> request, String text, Consumer<T> onSuccess, Consumer<String> onError) {
         if (!processingEnabled) {
-            contextHelper.runInFxThread(() -> {
-                disable();
-            });
+            contextHelper.runInFxThread(this::disable);
             processingEnabled = true;
         }
         Runnable processingOff = () -> {
             if (!processingEnabled) return;
-            contextHelper.runInFxThread(() -> {
-                enable();
-	    });
+            contextHelper.runInFxThread(this::enable);
             processingEnabled = false;
         };
         try {
