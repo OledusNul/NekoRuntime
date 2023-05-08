@@ -122,7 +122,6 @@ public class LoginScene extends AbstractScene {
                     }
                     LogHelper.dev("Launcher update processed");
 		    contextHelper.runInFxThread(this::loginWithGui);
-                    postInit();
                 }, (event) -> LauncherEngine.exitLauncher(0));
             }
         }
