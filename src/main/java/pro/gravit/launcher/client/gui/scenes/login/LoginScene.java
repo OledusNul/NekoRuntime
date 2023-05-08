@@ -53,6 +53,7 @@ import java.util.function.Consumer;
 public class LoginScene extends AbstractScene {
     public Map<Class<? extends GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails>, AbstractAuthMethod<? extends GetAvailabilityAuthRequestEvent.AuthAvailabilityDetails>> authMethods = new HashMap<>(8);
     public boolean isLoginStarted;
+    public boolean needUpdate = false;
     private List<GetAvailabilityAuthRequestEvent.AuthAvailability> auth;
     private final AuthService authService = new AuthService(application);
     private ToggleGroup authToggleGroup;
@@ -98,11 +99,13 @@ public class LoginScene extends AbstractScene {
                     }
                     if (result.needUpdate) {
                         try {
+                            needUpdate = true;
                             LogHelper.debug("Start update processing");
                             disable();
                             StdJavaRuntimeProvider.updatePath = LauncherUpdater.prepareUpdate(new URL(result.url));
                             LogHelper.debug("Exit with Platform.exit");
                             Platform.exit();
+                            needUpdate = false;
                             return;
                         } catch (Throwable e) {
                             contextHelper.runInFxThread(() -> {
@@ -177,17 +180,14 @@ public class LoginScene extends AbstractScene {
     public void errorHandle(Throwable e) {
         super.errorHandle(e);
         if (!processingEnabled) return;
-            contextHelper.runInFxThread(() -> {
-                enable();
-	    });
-            processingEnabled = false;
-        }
+        contextHelper.runInFxThread(this::enable);
+        processingEnabled = false;
+    }
 
     @Override
     public void reset() {
-
+        contextHelper.runInFxThread(LoginScene.this::loginWithGui);
     }
-
 
     @Override
     public String getName() {
@@ -209,7 +209,6 @@ public class LoginScene extends AbstractScene {
                 }, (error) -> {
                     application.runtimeSettings.oauthAccessToken = null;
                     application.runtimeSettings.oauthRefreshToken = null;
-		    contextHelper.runInFxThread(this::loginWithGui);
                 });
                 return true;
             }
@@ -218,10 +217,10 @@ public class LoginScene extends AbstractScene {
             LogHelper.info("Login with OAuth AccessToken");
             loginWithOAuth(password, authAvailability);
             return true;
-         }
-        return true;
+        }
+        return false;
     }
-    
+
     private void loginWithOAuth(AuthOAuthPassword password, GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability) {
         AuthRequest authRequest = authService.makeAuthRequest(null, password, authAvailability.name);
         processing(authRequest, application.getTranslation("runtime.overlay.processing.text.auth"), (result) -> {
@@ -232,7 +231,6 @@ public class LoginScene extends AbstractScene {
             if (error.equals(AuthRequestEvent.OAUTH_TOKEN_INVALID)) {
                 application.runtimeSettings.oauthAccessToken = null;
                 application.runtimeSettings.oauthRefreshToken = null;
-                contextHelper.runInFxThread(this::loginWithGui);
             } else {
                 errorHandle(new RequestException(error));
             }
@@ -245,7 +243,9 @@ public class LoginScene extends AbstractScene {
     }
 
     private void loginWithGui() {
-        if (tryOAuthLogin()) return;
+        if (tryOAuthLogin()) {
+            return;
+        }
         authFlow.start().thenAccept((result) -> {
             contextHelper.runInFxThread(() -> {
                 onSuccessLogin(result);
@@ -262,6 +262,7 @@ public class LoginScene extends AbstractScene {
             return false;
         return true;
     }
+
     private void onSuccessLogin(SuccessAuth successAuth) {
         AuthRequestEvent result = successAuth.requestEvent;
         application.stateService.setAuthResult(authAvailability.name, result);
@@ -463,7 +464,6 @@ public class LoginScene extends AbstractScene {
 
 
         private void login(String login, AuthRequest.AuthPasswordInterface password, GetAvailabilityAuthRequestEvent.AuthAvailability authId, CompletableFuture<SuccessAuth> result) {
-            isLoginStarted = true;
             LogHelper.dev("Auth with %s password ***** authId %s", login, authId);
             AuthRequest authRequest = authService.makeAuthRequest(login, password, authId.name);
             processing(authRequest, application.getTranslation("runtime.overlay.processing.text.auth"), (event) -> {
@@ -474,12 +474,6 @@ public class LoginScene extends AbstractScene {
                     application.runtimeSettings.oauthRefreshToken = null;
                     result.completeExceptionally(new RequestException(error));
                 } else if (error.equals(AuthRequestEvent.TWO_FACTOR_NEED_ERROR_MESSAGE)) {
-                    /*List<Integer> newAuthFlow = new ArrayList<>();
-                    newAuthFlow.add(0);
-                    newAuthFlow.add(1);
-                    AuthRequest.AuthPasswordInterface recentPassword = makeResentPassword(newAuthFlow, password);
-                    authFlow.clear();
-                    authFlow.addAll(newAuthFlow);*/
                     authFlow.clear();
                     authFlow.add(1);
                     contextHelper.runInFxThread(() -> start(result, login, password));
@@ -488,7 +482,6 @@ public class LoginScene extends AbstractScene {
                     for (String s : error.substring(AuthRequestEvent.ONE_FACTOR_NEED_ERROR_MESSAGE_PREFIX.length() + 1).split("\\.")) {
                         newAuthFlow.add(Integer.parseInt(s));
                     }
-                    //AuthRequest.AuthPasswordInterface recentPassword = makeResentPassword(newAuthFlow, password);
                     authFlow.clear();
                     authFlow.addAll(newAuthFlow);
                     contextHelper.runInFxThread(() -> start(result, login, password));
@@ -496,24 +489,10 @@ public class LoginScene extends AbstractScene {
                     authFlow.clear();
                     authFlow.add(0);
                     errorHandle(new RequestException(error));
+                    contextHelper.runInFxThread(LoginScene.this::loginWithGui);
                 }
             });
         }
-
-        /*public AuthRequest.AuthPasswordInterface makeResentPassword(List<Integer> newAuthFlow, AuthRequest.AuthPasswordInterface password) {
-            List<AuthRequest.AuthPasswordInterface> list = authService.getListFromPassword(password);
-            List<AuthRequest.AuthPasswordInterface> result = new ArrayList<>();
-            for(int i=0;i<newAuthFlow.size();++i) {
-                int flowId = newAuthFlow.get(i);
-                if(authFlow.contains(flowId)) {
-                    result.add(list.get(i));
-                    //noinspection RedundantCast
-                    newAuthFlow.remove((int)i);
-                    i--;
-                }
-            }
-            return authService.getPasswordFromList(result);
-        }*/
     }
 
     public static class SuccessAuth {
