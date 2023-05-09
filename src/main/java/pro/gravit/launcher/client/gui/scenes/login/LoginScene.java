@@ -57,6 +57,7 @@ public class LoginScene extends AbstractScene {
     private List<GetAvailabilityAuthRequestEvent.AuthAvailability> auth;
     private final AuthService authService = new AuthService(application);
     private ToggleGroup authToggleGroup;
+    private VBox authList;
     private GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability;
     private final AuthFlow authFlow = new AuthFlow();
 
@@ -71,6 +72,7 @@ public class LoginScene extends AbstractScene {
 
     @Override
     public void doInit() {
+        authList = LookupHelper.<VBox>lookup(layout, "#authList");
         authToggleGroup = new ToggleGroup();
         authMethods.forEach((k, v) -> v.prepare());
         {
@@ -78,6 +80,7 @@ public class LoginScene extends AbstractScene {
             GetAvailabilityAuthRequest getAvailabilityAuthRequest = new GetAvailabilityAuthRequest();
             processRequest(application.getTranslation("runtime.overlay.processing.text.authAvailability"), getAvailabilityAuthRequest, (auth) -> contextHelper.runInFxThread(() -> {
                 this.auth = auth.list;
+                authList.setVisible(auth.list.size() != 1);
                 for (GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability : auth.list) {
                     if (application.runtimeSettings.lastAuth == null) {
                         if (authAvailability.name.equals("std") || this.authAvailability == null) {
@@ -133,6 +136,7 @@ public class LoginScene extends AbstractScene {
         this.application.stateService.setAuthAvailability(authAvailability);
         authFlow.init(authAvailability);
         LogHelper.info("Selected auth: %s", authAvailability.name);
+        authList.getChildren().add(radio);
     }
 
     public void addAuthAvailability(GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability) {
