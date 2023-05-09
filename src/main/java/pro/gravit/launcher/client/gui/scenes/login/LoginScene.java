@@ -9,8 +9,6 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
 import pro.gravit.launcher.LauncherEngine;
 import pro.gravit.launcher.LauncherEngine;
 import pro.gravit.launcher.client.StdJavaRuntimeProvider;
@@ -60,7 +58,6 @@ public class LoginScene extends AbstractScene {
     private List<GetAvailabilityAuthRequestEvent.AuthAvailability> auth;
     private final AuthService authService = new AuthService(application);
     private ToggleGroup authToggleGroup;
-    private VBox authList;
     private GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability;
     private final AuthFlow authFlow = new AuthFlow();
 
@@ -75,7 +72,6 @@ public class LoginScene extends AbstractScene {
 
     @Override
     public void doInit() {
-        authList = LookupHelper.<VBox>lookup(layout, "#authList");
         authToggleGroup = new ToggleGroup();
         authMethods.forEach((k, v) -> v.prepare());
         {
@@ -153,7 +149,6 @@ public class LoginScene extends AbstractScene {
             changeAuthAvailability(authAvailability);
         });
         LogHelper.info("Added %s: %s", authAvailability.name, authAvailability.displayName);
-        authList.getChildren().add(radio);
     }
 
     private volatile boolean processingEnabled = false;
