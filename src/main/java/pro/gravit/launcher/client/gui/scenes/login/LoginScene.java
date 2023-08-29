@@ -124,14 +124,42 @@ public class LoginScene extends AbstractScene {
                             }
                         }
                     }
-                    LogHelper.dev("Launcher update processed");
-                    contextHelper.runCallback(this::loginWithGui);
-                }, (event) -> LauncherEngine.exitLauncher(0));
+            LogHelper.dev("Launcher update processed");
+            getAvailabilityAuth();
+        }, (event) -> LauncherEngine.exitLauncher(0));
+    }
+    private void getAvailabilityAuth() {
+        GetAvailabilityAuthRequest getAvailabilityAuthRequest = new GetAvailabilityAuthRequest();
+        processRequest(application.getTranslation("runtime.overlay.processing.text.authAvailability"), getAvailabilityAuthRequest, (auth) -> contextHelper.runInFxThread(() -> {
+            this.auth = auth.list;
+            authList.setVisible(auth.list.size() != 1);
+            for (GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability : auth.list) {
+                if(!authAvailability.visible) {
+                    continue;
+                }
+                if (application.runtimeSettings.lastAuth == null) {
+                    if (authAvailability.name.equals("std") || this.authAvailability == null) {
+                        changeAuthAvailability(authAvailability);
+                    }
+                } else if (authAvailability.name.equals(application.runtimeSettings.lastAuth.name))
+                    changeAuthAvailability(authAvailability);
+                addAuthAvailability(authAvailability);
             }
-        }
-        hideOverlay(0, (event) -> {});
+            if(this.authAvailability == null && auth.list.size() > 0) {
+                changeAuthAvailability(auth.list.get(0));
+            }
+            hideOverlay(0, (event) -> {
+                postInit();
+            });
+        }), null);
     }
 
+    private void postInit() {
+        if(application.guiModuleConfig.autoAuth || application.runtimeSettings.autoAuth) {
+            contextHelper.runInFxThread(this::loginWithGui);
+        }
+    }
+    
     public void changeAuthAvailability(GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability) {
         this.authAvailability = authAvailability;
         this.application.stateService.setAuthAvailability(authAvailability);
