@@ -188,7 +188,7 @@ public class LoginScene extends AbstractScene {
 
     @Override
     public void reset() {
-        contextHelper.runInFxThread(LoginScene.this::loginWithGui);
+        authFlow.reset();
     }
 
     @Override
