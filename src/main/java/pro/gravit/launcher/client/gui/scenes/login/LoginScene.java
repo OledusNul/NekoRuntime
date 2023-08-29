@@ -9,6 +9,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import pro.gravit.launcher.LauncherEngine;
 import pro.gravit.launcher.LauncherEngine;
 import pro.gravit.launcher.client.StdJavaRuntimeProvider;
@@ -58,6 +59,7 @@ public class LoginScene extends AbstractScene {
     private List<GetAvailabilityAuthRequestEvent.AuthAvailability> auth;
     private final AuthService authService = new AuthService(application);
     private ToggleGroup authToggleGroup;
+    private VBox authList;
     private GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability;
     private final AuthFlow authFlow = new AuthFlow();
 
