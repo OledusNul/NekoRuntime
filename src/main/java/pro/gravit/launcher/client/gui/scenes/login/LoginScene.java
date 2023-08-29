@@ -249,8 +249,6 @@ public class LoginScene extends AbstractScene {
             return;
         }
         authFlow.start().thenAccept((result) -> {
-            authFlow.clear();
-            authFlow.add(1);
             contextHelper.runInFxThread(() -> {
                 onSuccessLogin(result);
             });
