@@ -109,8 +109,10 @@ public class LoginScene extends AbstractScene {
                             needUpdate = false;
                             return;
                         } catch (Throwable e) {
-                            contextHelper.runInFxThread(() -> {
-                                errorHandle(e);
+                              authFlow.clear();
+                              authFlow.add(1);
+                              contextHelper.runInFxThread(() -> start(result, login, password));
+                              errorHandle(e);
                             });
                             try {
                                 Thread.sleep(1500);
