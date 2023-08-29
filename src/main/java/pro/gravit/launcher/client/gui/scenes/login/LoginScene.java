@@ -128,6 +128,7 @@ public class LoginScene extends AbstractScene {
             getAvailabilityAuth();
         }, (event) -> LauncherEngine.exitLauncher(0));
     }
+            
     private void getAvailabilityAuth() {
         GetAvailabilityAuthRequest getAvailabilityAuthRequest = new GetAvailabilityAuthRequest();
         processRequest(application.getTranslation("runtime.overlay.processing.text.authAvailability"), getAvailabilityAuthRequest, (auth) -> contextHelper.runInFxThread(() -> {
