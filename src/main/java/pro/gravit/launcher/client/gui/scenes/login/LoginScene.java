@@ -480,7 +480,7 @@ public class LoginScene extends AbstractScene {
                     application.runtimeSettings.oauthRefreshToken = null;
                     result.completeExceptionally(new RequestException(error));
                 } else if (error.equals(AuthRequestEvent.TWO_FACTOR_NEED_ERROR_MESSAGE)) {
-                    authFlow.reset();
+                    authFlow.clear();
                     authFlow.add(1);
                     contextHelper.runInFxThread(() -> start(result, login, password));
                 } else if (error.startsWith(AuthRequestEvent.ONE_FACTOR_NEED_ERROR_MESSAGE_PREFIX)) {
@@ -488,14 +488,13 @@ public class LoginScene extends AbstractScene {
                     for (String s : error.substring(AuthRequestEvent.ONE_FACTOR_NEED_ERROR_MESSAGE_PREFIX.length() + 1).split("\\.")) {
                         newAuthFlow.add(Integer.parseInt(s));
                     }
-                    authFlow.reset();
+                    authFlow.clear();
                     authFlow.addAll(newAuthFlow);
                     contextHelper.runInFxThread(() -> start(result, login, password));
                 } else {
-                    authFlow.reset();
+                    authFlow.clear();
                     authFlow.add(0);
                     errorHandle(new RequestException(error));
-                    contextHelper.runInFxThread(LoginScene.this::loginWithGui);
                 }
             });
         }
