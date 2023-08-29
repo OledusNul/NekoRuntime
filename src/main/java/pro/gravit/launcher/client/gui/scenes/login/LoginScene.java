@@ -396,6 +396,10 @@ public class LoginScene extends AbstractScene {
 
         public void init(GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability) {
             this.authAvailability = authAvailability;
+            reset();
+        }
+
+        public void reset() {
             authFlow.clear();
             authFlow.add(0);
         }
