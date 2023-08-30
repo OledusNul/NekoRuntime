@@ -399,14 +399,10 @@ public class LoginScene extends AbstractScene {
 
         public void init(GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability) {
             this.authAvailability = authAvailability;
-            reset();
-        }
-
-        public void reset() {
             authFlow.clear();
             authFlow.add(0);
         }
-
+        
         private CompletableFuture<LoginAndPasswordResult> tryLogin(String resentLogin, AuthRequest.AuthPasswordInterface resentPassword) {
             CompletableFuture<LoginScene.LoginAndPasswordResult> authFuture = null;
             if(resentPassword != null) {
