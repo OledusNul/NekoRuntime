@@ -93,6 +93,7 @@ public class LoginScene extends AbstractScene {
                 if (this.authAvailability == null && auth.list.size() > 0) {
                     changeAuthAvailability(auth.list.get(0));
                 }
+                authList = LookupHelper.<VBox>lookup(layout, "#authList");
                 contextHelper.runInFxThread(this::loginWithGui);
             }), null);
             if (!application.isDebugMode()) {
@@ -130,10 +131,9 @@ public class LoginScene extends AbstractScene {
         }
         hideOverlay(0, (event) -> {});
     }
-    
+
     public void changeAuthAvailability(GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability) {
         this.authAvailability = authAvailability;
-        this.application.stateService.setAuthAvailability(authAvailability);
         authFlow.init(authAvailability);
         LogHelper.info("Selected auth: %s", authAvailability.name);
     }
