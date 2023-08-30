@@ -74,68 +74,100 @@ public class LoginScene extends AbstractScene {
 
     @Override
     public void doInit() {
+        authButton = new LoginAuthButtonComponent(LookupHelper.lookup(layout, "#authButtonBlock"), application, (e) -> contextHelper.runCallback(this::loginWithGui));
+        savePasswordCheckBox = LookupHelper.lookup(layout, "#leftPane", "#savePassword");
+        if (application.runtimeSettings.password != null || application.runtimeSettings.oauthAccessToken != null) {
+            LookupHelper.<CheckBox>lookup(layout, "#leftPane", "#savePassword").setSelected(true);
+        }
+        autoenter = LookupHelper.<CheckBox>lookup(layout, "#autoenter");
+        autoenter.setSelected(application.runtimeSettings.autoAuth);
+        autoenter.setOnAction((event) -> application.runtimeSettings.autoAuth = autoenter.isSelected());
+        if (application.guiModuleConfig.createAccountURL != null)
+            LookupHelper.<Text>lookup(header, "#controls", "#registerPane", "#createAccount").setOnMouseClicked((e) ->
+                    application.openURL(application.guiModuleConfig.createAccountURL));
+        if (application.guiModuleConfig.forgotPassURL != null)
+            LookupHelper.<Text>lookup(header, "#controls", "#links", "#forgotPass").setOnMouseClicked((e) ->
+                    application.openURL(application.guiModuleConfig.forgotPassURL));
         authList = LookupHelper.<VBox>lookup(layout, "#authList");
         authToggleGroup = new ToggleGroup();
         authMethods.forEach((k, v) -> v.prepare());
-        {
-            LauncherRequest launcherRequest = new LauncherRequest();
-            GetAvailabilityAuthRequest getAvailabilityAuthRequest = new GetAvailabilityAuthRequest();
-            processRequest(application.getTranslation("runtime.overlay.processing.text.authAvailability"), getAvailabilityAuthRequest, (auth) -> contextHelper.runInFxThread(() -> {
-                this.auth = auth.list;
-                authList.setVisible(auth.list.size() != 1);
-                for (GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability : auth.list) {
-                    if (application.runtimeSettings.lastAuth == null) {
-                        if (authAvailability.name.equals("std") || this.authAvailability == null) {
-                            changeAuthAvailability(authAvailability);
-                        }
-                    } else if (authAvailability.name.equals(application.runtimeSettings.lastAuth.name))
-                        changeAuthAvailability(authAvailability);
-                    addAuthAvailability(authAvailability);
-                }
-                if (this.authAvailability == null && auth.list.size() > 0) {
-                    changeAuthAvailability(auth.list.get(0));
-                }
-                authList = LookupHelper.<VBox>lookup(layout, "#authList");
-                contextHelper.runInFxThread(this::loginWithGui);
-            }), null);
-            if (!application.isDebugMode()) {
-                processRequest(application.getTranslation("runtime.overlay.processing.text.launcher"), launcherRequest, (result) -> {
-                    if (result.launcherExtendedToken != null) {
-                        Request.addExtendedToken(LauncherRequestEvent.LAUNCHER_EXTENDED_TOKEN_NAME, result.launcherExtendedToken);
-                    }
-                    if (result.needUpdate) {
-                        try {
-                            needUpdate = true;
-                            LogHelper.debug("Start update processing");
-                            disable();
-                            StdJavaRuntimeProvider.updatePath = LauncherUpdater.prepareUpdate(new URL(result.url));
-                            LogHelper.debug("Exit with Platform.exit");
-                            Platform.exit();
-                            needUpdate = false;
-                            return;
-                        } catch (Throwable e) {
-                            contextHelper.runInFxThread(() -> {
-                                errorHandle(e);
-                            });
-                            try {
-                                Thread.sleep(1500);
-                                LauncherEngine.modulesManager.invokeEvent(new ClientExitPhase(0));
-                                Platform.exit();
-                            } catch (Throwable ex) {
-                                LauncherEngine.exitLauncher(0);
-                            }
-                        }
-                    }
-                    LogHelper.dev("Launcher update processed");
-                    contextHelper.runCallback(this::loginWithGui);
-                }, (event) -> LauncherEngine.exitLauncher(0));
-            }
+        // Verify Launcher
+        if (!application.isDebugMode()) {
+            // we would like to wait till launcher request success before start availability auth.
+            // otherwise it will try to access same vars same time, and this causes a lot of multi-thread based errors
+            // launcherRequest().finally(getAvailabilityAuth().finally(postInit()))
+            launcherRequest();
+        } else {
+            getAvailabilityAuth();
         }
-        hideOverlay(0, (event) -> {});
+    }
+
+    private void launcherRequest() {
+        LauncherRequest launcherRequest = new LauncherRequest();
+        processRequest(application.getTranslation("runtime.overlay.processing.text.launcher"), launcherRequest, (result) -> {
+            if (result.launcherExtendedToken != null) {
+                Request.addExtendedToken(LauncherRequestEvent.LAUNCHER_EXTENDED_TOKEN_NAME, result.launcherExtendedToken);
+            }
+            if (result.needUpdate) {
+                try {
+                    LogHelper.debug("Start update processing");
+                    disable();
+                    StdJavaRuntimeProvider.updatePath = LauncherUpdater.prepareUpdate(new URL(result.url));
+                    LogHelper.debug("Exit with Platform.exit");
+                    Platform.exit();
+                    return;
+                } catch (Throwable e) {
+                    contextHelper.runInFxThread(() -> {
+                        errorHandle(e);
+                    });
+                    try {
+                        Thread.sleep(1500);
+                        LauncherEngine.modulesManager.invokeEvent(new ClientExitPhase(0));
+                        Platform.exit();
+                    } catch (Throwable ex) {
+                        LauncherEngine.exitLauncher(0);
+                    }
+                }
+            }
+            LogHelper.dev("Launcher update processed");
+            getAvailabilityAuth();
+        }, (event) -> LauncherEngine.exitLauncher(0));
+    }
+    private void getAvailabilityAuth() {
+        GetAvailabilityAuthRequest getAvailabilityAuthRequest = new GetAvailabilityAuthRequest();
+        processRequest(application.getTranslation("runtime.overlay.processing.text.authAvailability"), getAvailabilityAuthRequest, (auth) -> contextHelper.runInFxThread(() -> {
+            this.auth = auth.list;
+            authList.setVisible(auth.list.size() != 1);
+            for (GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability : auth.list) {
+                if(!authAvailability.visible) {
+                    continue;
+                }
+                if (application.runtimeSettings.lastAuth == null) {
+                    if (authAvailability.name.equals("std") || this.authAvailability == null) {
+                        changeAuthAvailability(authAvailability);
+                    }
+                } else if (authAvailability.name.equals(application.runtimeSettings.lastAuth.name))
+                    changeAuthAvailability(authAvailability);
+                addAuthAvailability(authAvailability);
+            }
+            if(this.authAvailability == null && auth.list.size() > 0) {
+                changeAuthAvailability(auth.list.get(0));
+            }
+            hideOverlay(0, (event) -> {
+                postInit();
+            });
+        }), null);
+    }
+
+    private void postInit() {
+        if(application.guiModuleConfig.autoAuth || application.runtimeSettings.autoAuth) {
+            contextHelper.runInFxThread(this::loginWithGui);
+        }
     }
 
     public void changeAuthAvailability(GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability) {
         this.authAvailability = authAvailability;
+        this.application.stateService.setAuthAvailability(authAvailability);
         authFlow.init(authAvailability);
         LogHelper.info("Selected auth: %s", authAvailability.name);
     }
@@ -216,6 +248,7 @@ public class LoginScene extends AbstractScene {
                 }, (error) -> {
                     application.runtimeSettings.oauthAccessToken = null;
                     application.runtimeSettings.oauthRefreshToken = null;
+                    contextHelper.runInFxThread(this::loginWithGui);
                 });
                 return true;
             }
@@ -238,6 +271,7 @@ public class LoginScene extends AbstractScene {
             if (error.equals(AuthRequestEvent.OAUTH_TOKEN_INVALID)) {
                 application.runtimeSettings.oauthAccessToken = null;
                 application.runtimeSettings.oauthRefreshToken = null;
+                contextHelper.runInFxThread(this::loginWithGui);
             } else {
                 errorHandle(new RequestException(error));
             }
@@ -401,6 +435,10 @@ public class LoginScene extends AbstractScene {
 
         public void init(GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability) {
             this.authAvailability = authAvailability;
+            reset();
+        }
+
+        public void reset() {
             authFlow.clear();
             authFlow.add(0);
         }
@@ -454,6 +492,7 @@ public class LoginScene extends AbstractScene {
                 login(e.login, e.password, authAvailability, result);
             }).exceptionally((e) -> {
                 e = e.getCause();
+                reset();
                 isLoginStarted = false;
                 if (e instanceof AbstractAuthMethod.UserAuthCanceledException) {
                     return null;
