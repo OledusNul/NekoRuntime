@@ -74,23 +74,30 @@ public class LoginScene extends AbstractScene {
 
     @Override
     public void doInit() {
-        authButton = new LoginAuthButtonComponent(LookupHelper.lookup(layout, "#authButtonBlock"), application, (e) -> contextHelper.runCallback(this::loginWithGui));
-        savePasswordCheckBox = LookupHelper.lookup(layout, "#leftPane", "#savePassword");
-        if (application.runtimeSettings.password != null || application.runtimeSettings.oauthAccessToken != null) {
-            LookupHelper.<CheckBox>lookup(layout, "#leftPane", "#savePassword").setSelected(true);
-        }
-        autoenter = LookupHelper.<CheckBox>lookup(layout, "#autoenter");
-        autoenter.setSelected(application.runtimeSettings.autoAuth);
-        autoenter.setOnAction((event) -> application.runtimeSettings.autoAuth = autoenter.isSelected());
-        if (application.guiModuleConfig.createAccountURL != null)
-            LookupHelper.<Text>lookup(header, "#controls", "#registerPane", "#createAccount").setOnMouseClicked((e) ->
-                    application.openURL(application.guiModuleConfig.createAccountURL));
-        if (application.guiModuleConfig.forgotPassURL != null)
-            LookupHelper.<Text>lookup(header, "#controls", "#links", "#forgotPass").setOnMouseClicked((e) ->
-                    application.openURL(application.guiModuleConfig.forgotPassURL));
         authList = LookupHelper.<VBox>lookup(layout, "#authList");
         authToggleGroup = new ToggleGroup();
         authMethods.forEach((k, v) -> v.prepare());
+        {
+            LauncherRequest launcherRequest = new LauncherRequest();
+            GetAvailabilityAuthRequest getAvailabilityAuthRequest = new GetAvailabilityAuthRequest();
+            processRequest(application.getTranslation("runtime.overlay.processing.text.authAvailability"), getAvailabilityAuthRequest, (auth) -> contextHelper.runInFxThread(() -> {
+                this.auth = auth.list;
+                authList.setVisible(auth.list.size() != 1);
+                for (GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability : auth.list) {
+                    if (application.runtimeSettings.lastAuth == null) {
+                        if (authAvailability.name.equals("std") || this.authAvailability == null) {
+                            changeAuthAvailability(authAvailability);
+                        }
+                    } else if (authAvailability.name.equals(application.runtimeSettings.lastAuth.name))
+                        changeAuthAvailability(authAvailability);
+                    addAuthAvailability(authAvailability);
+                }
+                if (this.authAvailability == null && auth.list.size() > 0) {
+                    changeAuthAvailability(auth.list.get(0));
+                }
+                authList = LookupHelper.<VBox>lookup(layout, "#authList");
+                contextHelper.runInFxThread(this::loginWithGui);
+            }), null);
         // Verify Launcher
         if (!application.isDebugMode()) {
             // we would like to wait till launcher request success before start availability auth.
