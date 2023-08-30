@@ -93,7 +93,6 @@ public class LoginScene extends AbstractScene {
                 if (this.authAvailability == null && auth.list.size() > 0) {
                     changeAuthAvailability(auth.list.get(0));
                 }
-                authList = LookupHelper.<VBox>lookup(layout, "#authList");
                 contextHelper.runInFxThread(this::loginWithGui);
             }), null);
             if (!application.isDebugMode()) {
