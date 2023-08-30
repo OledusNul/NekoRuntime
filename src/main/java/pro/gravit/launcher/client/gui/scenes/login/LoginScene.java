@@ -71,7 +71,9 @@ public class LoginScene extends AbstractScene {
         authMethods.put(AuthTotpDetails.class, new TotpAuthMethod(accessor));
         authMethods.put(AuthLoginOnlyDetails.class, new LoginOnlyAuthMethod(accessor));
     }
-
+    
+    @Override
+    public void doInit() {
         authToggleGroup = new ToggleGroup();
         authMethods.forEach((k, v) -> v.prepare());
         {
