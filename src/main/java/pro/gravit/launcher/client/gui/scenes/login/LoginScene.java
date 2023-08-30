@@ -78,7 +78,6 @@ public class LoginScene extends AbstractScene {
         authToggleGroup = new ToggleGroup();
         authMethods.forEach((k, v) -> v.prepare());
         {
-            LauncherRequest launcherRequest = new LauncherRequest();
             GetAvailabilityAuthRequest getAvailabilityAuthRequest = new GetAvailabilityAuthRequest();
             processRequest(application.getTranslation("runtime.overlay.processing.text.authAvailability"), getAvailabilityAuthRequest, (auth) -> contextHelper.runInFxThread(() -> {
                 this.auth = auth.list;
