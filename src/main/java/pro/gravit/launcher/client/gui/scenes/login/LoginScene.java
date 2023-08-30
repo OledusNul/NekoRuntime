@@ -75,7 +75,6 @@ public class LoginScene extends AbstractScene {
     @Override
     public void doInit() {
         authButton = new LoginAuthButtonComponent(LookupHelper.lookup(layout, "#authList), application, (e) -> contextHelper.runCallback(this::loginWithGui));
-        }
         authList = LookupHelper.<VBox>lookup(layout, "#authList");
         authToggleGroup = new ToggleGroup();
         authMethods.forEach((k, v) -> v.prepare());
@@ -90,9 +89,7 @@ public class LoginScene extends AbstractScene {
         }
     }
 
-
-    private void launcherRequest() {
-        LauncherRequest launcherRequest = new LauncherRequest();
+    LauncherRequest launcherRequest = new LauncherRequest();
         processRequest(application.getTranslation("runtime.overlay.processing.text.launcher"), launcherRequest, (result) -> {
             if (result.launcherExtendedToken != null) {
                 Request.addExtendedToken(LauncherRequestEvent.LAUNCHER_EXTENDED_TOKEN_NAME, result.launcherExtendedToken);
