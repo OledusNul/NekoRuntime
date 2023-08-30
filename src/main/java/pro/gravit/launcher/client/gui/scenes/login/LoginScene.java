@@ -74,29 +74,11 @@ public class LoginScene extends AbstractScene {
 
     @Override
     public void doInit() {
+        authButton = new LoginAuthButtonComponent(LookupHelper.lookup(layout, "#authList), application, (e) -> contextHelper.runCallback(this::loginWithGui));
+        }
         authList = LookupHelper.<VBox>lookup(layout, "#authList");
         authToggleGroup = new ToggleGroup();
         authMethods.forEach((k, v) -> v.prepare());
-        {
-            GetAvailabilityAuthRequest getAvailabilityAuthRequest = new GetAvailabilityAuthRequest();
-            processRequest(application.getTranslation("runtime.overlay.processing.text.authAvailability"), getAvailabilityAuthRequest, (auth) -> contextHelper.runInFxThread(() -> {
-                this.auth = auth.list;
-                authList.setVisible(auth.list.size() != 1);
-                for (GetAvailabilityAuthRequestEvent.AuthAvailability authAvailability : auth.list) {
-                    if (application.runtimeSettings.lastAuth == null) {
-                        if (authAvailability.name.equals("std") || this.authAvailability == null) {
-                            changeAuthAvailability(authAvailability);
-                        }
-                    } else if (authAvailability.name.equals(application.runtimeSettings.lastAuth.name))
-                        changeAuthAvailability(authAvailability);
-                    addAuthAvailability(authAvailability);
-                }
-                if (this.authAvailability == null && auth.list.size() > 0) {
-                    changeAuthAvailability(auth.list.get(0));
-                }
-                authList = LookupHelper.<VBox>lookup(layout, "#authList");
-                contextHelper.runInFxThread(this::loginWithGui);
-            }), null);
         // Verify Launcher
         if (!application.isDebugMode()) {
             // we would like to wait till launcher request success before start availability auth.
@@ -107,6 +89,7 @@ public class LoginScene extends AbstractScene {
             getAvailabilityAuth();
         }
     }
+
 
     private void launcherRequest() {
         LauncherRequest launcherRequest = new LauncherRequest();
